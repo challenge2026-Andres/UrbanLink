@@ -137,6 +137,13 @@ Retorna `{ saldo, resgate }` (409 se saldo insuficiente).
 
 Zera os dados de gamificação (usuário demo, trajetos, carteira).
 
+### `GET /api/dev/analise-imagem` (só fora de produção)
+
+Resumo das análises de foto dos trajetos validados — para calibrar o limiar
+antes de ligar o modo `blocking`: contagem aprovadas/reprovadas, faixa de
+confiança de cada grupo, histograma, contagem por rótulo e uma `sugestaoLimiar`
+(ponto médio entre a maior reprovada e a menor aprovada).
+
 ## Estrutura
 
 ```
@@ -184,7 +191,9 @@ Verifica se a foto do check-in é mesmo o **interior de um transporte público**
   com `IMAGE_ANALYSIS_MIN_CONFIDENCE`. As descrições estão em `services/analiseImagem.js`.
 - **Modos:** `advisory` (padrão — roda, registra e mostra o resultado, mas não recusa o
   check-in) e `blocking` (foto reprovada → `valido: false`, `motivo: 'foto_rejeitada'`).
-  Começar em advisório permite calibrar o limiar pelos logs antes de barrar usuário real.
+  Começar em advisório permite calibrar o limiar antes de barrar usuário real — nada é
+  "treinado", só se ajusta `IMAGE_ANALYSIS_MIN_CONFIDENCE` e as listas de rótulos.
+  `GET /api/dev/analise-imagem` mostra o resumo para essa calibração.
 - **Fail mode:** se a inferência falhar/estourar timeout, `IMAGE_ANALYSIS_FAIL_MODE`
   decide (`open` aprova, `closed` rejeita). `VALIDATION_BYPASS=true` pula a análise.
 - **Trocar de provedor** (Claude Haiku, Gemini) é só configuração — `provider` no
