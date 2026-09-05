@@ -14,6 +14,7 @@ import 'dotenv/config';
  *   sptransBaseUrl: string,
  *   corsOrigin: string,
  *   validationRadiusM: number,
+ *   validationMaxAccuracyM: number,
  *   sptransPositionMaxAgeS: number,
  *   maxPhotoBytes: number,
  *   validationBypass: boolean,
@@ -26,6 +27,15 @@ import 'dotenv/config';
  *     trajetosPorNivel: number,
  *     desafioSemanalMeta: number,
  *     desafioSemanalRecompensa: number
+ *   },
+ *   imageAnalysis: {
+ *     enabled: boolean,
+ *     provider: 'local' | 'anthropic' | 'gemini',
+ *     model: string,
+ *     mode: 'advisory' | 'blocking',
+ *     minConfidence: number,
+ *     timeoutMs: number,
+ *     failMode: 'open' | 'closed'
  *   }
  * }}
  */
@@ -37,6 +47,7 @@ function loadEnv() {
     SPTRANS_BASE_URL = 'https://api.olhovivo.sptrans.com.br/v2.1',
     CORS_ORIGIN = 'http://localhost:5173',
     VALIDATION_RADIUS_M = '150',
+    VALIDATION_MAX_ACCURACY_M = '500',
     SPTRANS_POSITION_MAX_AGE_S = '90',
     MAX_PHOTO_BYTES = '2097152',
     VALIDATION_BYPASS = 'false',
@@ -49,6 +60,14 @@ function loadEnv() {
     TRAJETOS_POR_NIVEL = '3',
     DESAFIO_SEMANAL_META = '5',
     DESAFIO_SEMANAL_RECOMPENSA = '150',
+    // Análise de conteúdo da foto
+    IMAGE_ANALYSIS_ENABLED = 'false',
+    IMAGE_ANALYSIS_PROVIDER = 'local',
+    IMAGE_ANALYSIS_MODEL = 'Xenova/clip-vit-base-patch32',
+    IMAGE_ANALYSIS_MODE = 'advisory',
+    IMAGE_ANALYSIS_MIN_CONFIDENCE = '0.5',
+    IMAGE_ANALYSIS_TIMEOUT_MS = '10000',
+    IMAGE_ANALYSIS_FAIL_MODE = 'open',
   } = process.env;
 
   const missing = [];
@@ -90,6 +109,21 @@ function loadEnv() {
     return parsed;
   };
 
+  /**
+   * @template {string} T
+   * @param {string} value
+   * @param {string} name
+   * @param {readonly T[]} permitidos
+   * @returns {T}
+   */
+  const toEnum = (value, name, permitidos) => {
+    if (!permitidos.includes(/** @type {T} */ (value))) {
+      console.error(`[config] ${name} inválida: "${value}" (esperado: ${permitidos.join(' | ')}).`);
+      process.exit(1);
+    }
+    return /** @type {T} */ (value);
+  };
+
   // Bypass da validação de presença: só para testar o fluxo em desenvolvimento.
   // NUNCA tem efeito em produção, mesmo se a variável estiver setada.
   const validationBypass = VALIDATION_BYPASS === 'true' && NODE_ENV !== 'production';
@@ -107,6 +141,7 @@ function loadEnv() {
     sptransBaseUrl: SPTRANS_BASE_URL.replace(/\/$/, ''),
     corsOrigin: CORS_ORIGIN,
     validationRadiusM: toPositiveInt(VALIDATION_RADIUS_M, 'VALIDATION_RADIUS_M'),
+    validationMaxAccuracyM: toPositiveInt(VALIDATION_MAX_ACCURACY_M, 'VALIDATION_MAX_ACCURACY_M'),
     sptransPositionMaxAgeS: toPositiveInt(SPTRANS_POSITION_MAX_AGE_S, 'SPTRANS_POSITION_MAX_AGE_S'),
     maxPhotoBytes: toPositiveInt(MAX_PHOTO_BYTES, 'MAX_PHOTO_BYTES'),
     validationBypass,
@@ -122,6 +157,19 @@ function loadEnv() {
         DESAFIO_SEMANAL_RECOMPENSA,
         'DESAFIO_SEMANAL_RECOMPENSA',
       ),
+    },
+    imageAnalysis: {
+      enabled: IMAGE_ANALYSIS_ENABLED === 'true',
+      provider: toEnum(IMAGE_ANALYSIS_PROVIDER, 'IMAGE_ANALYSIS_PROVIDER', [
+        'local',
+        'anthropic',
+        'gemini',
+      ]),
+      model: IMAGE_ANALYSIS_MODEL,
+      mode: toEnum(IMAGE_ANALYSIS_MODE, 'IMAGE_ANALYSIS_MODE', ['advisory', 'blocking']),
+      minConfidence: toPositiveNumber(IMAGE_ANALYSIS_MIN_CONFIDENCE, 'IMAGE_ANALYSIS_MIN_CONFIDENCE'),
+      timeoutMs: toPositiveInt(IMAGE_ANALYSIS_TIMEOUT_MS, 'IMAGE_ANALYSIS_TIMEOUT_MS'),
+      failMode: toEnum(IMAGE_ANALYSIS_FAIL_MODE, 'IMAGE_ANALYSIS_FAIL_MODE', ['open', 'closed']),
     },
   };
 }

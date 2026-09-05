@@ -14,6 +14,7 @@ import { OPCOES_RESGATE } from './perfil.js';
  * @param {{ lat: number, lng: number, em: string }} params.embarque
  * @param {{ distanciaMetros: number | null }} params.detalhes
  * @param {string} params.fotoSha256
+ * @param {{ aprovada: boolean, confianca: number, rotulo: string | null } | null} [params.analiseFoto]
  * @param {string} params.validadoEm
  * @returns {{
  *   trajeto: import('../store/store.js').Trajeto,
@@ -27,6 +28,7 @@ export function registrarTrajetoValidado({
   embarque,
   detalhes,
   fotoSha256,
+  analiseFoto = null,
   validadoEm,
 }) {
   const recompensa = calcularRecompensa();
@@ -46,6 +48,7 @@ export function registrarTrajetoValidado({
       ecoa: recompensa.ecoa,
       distanciaAoOnibusM: detalhes.distanciaMetros ?? null,
       fotoSha256,
+      analiseFoto,
       validadoEm,
     };
     d.trajetos.push(trajeto);

@@ -27,44 +27,12 @@
   margin-top: var(--space-1);
 }
 
-/* Botão que abre a câmera do dispositivo. */
-.camera {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  border-radius: var(--radius-md);
-  background: var(--color-surface-muted);
-  color: var(--color-text-secondary);
-  border: 1.5px dashed var(--color-border);
-  font-size: var(--text-sm);
-  font-weight: 600;
-}
-
-.camera:hover:not(:disabled) {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-}
-
-.camera:disabled {
-  opacity: 0.6;
-  cursor: default;
-}
-
 .privacy {
   display: flex;
   align-items: center;
   gap: var(--space-2);
   font-size: var(--text-xs);
   color: var(--color-text-secondary);
-}
-
-.erro {
-  font-size: var(--text-sm);
-  color: var(--color-danger);
 }
 
 /* Pré-visualização da foto capturada. */
@@ -292,6 +260,23 @@
   color: var(--color-text-on-primary);
   font-size: var(--text-sm);
   font-weight: 600;
+}
+
+.avisoFoto {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--color-text-on-primary-dim);
+  font-size: var(--text-xs);
+  text-align: left;
+}
+
+.avisoFoto svg {
+  flex-shrink: 0;
 }
 
 .successActions {

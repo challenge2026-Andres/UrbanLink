@@ -29,6 +29,17 @@ export type MotivoInvalido =
   | 'fora_do_raio'
   | 'posicao_desatualizada'
   | 'timestamp_invalido'
+  | 'precisao_baixa'
+  | 'foto_rejeitada'
+
+export interface AnaliseFoto {
+  executada: boolean
+  aprovada: boolean
+  confianca: number
+  rotulo: string | null
+  modo: 'advisory' | 'blocking'
+  status: 'ok' | 'indisponivel' | 'desligada'
+}
 
 export interface ResultadoValidacao {
   valido: boolean
@@ -46,7 +57,13 @@ export interface ResultadoValidacao {
     horaConsultaSptrans: string | null
     veiculosNaLinha: number
   }
-  foto: { recebida: boolean; bytes: number; sha256: string }
+  foto: {
+    recebida: boolean
+    bytes: number
+    sha256: string
+    /** Análise de conteúdo da foto; `null` quando a feature está desligada. */
+    analise: AnaliseFoto | null
+  }
   /** Recompensa concedida (só quando `valido`). */
   recompensa: Recompensa | null
   /** `true` se este trajeto concluiu o desafio semanal. */

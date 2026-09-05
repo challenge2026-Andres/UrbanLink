@@ -5,7 +5,8 @@ import { posicaoPorLinha } from './sptransClient.js';
 
 /**
  * Motivos possíveis para um trajeto NÃO ser validado.
- * @typedef {'sem_veiculos' | 'fora_do_raio' | 'posicao_desatualizada' | 'timestamp_invalido'} MotivoInvalido
+ * `foto_rejeitada` é aplicado fora deste serviço (rota), pela análise de imagem.
+ * @typedef {'sem_veiculos' | 'fora_do_raio' | 'posicao_desatualizada' | 'timestamp_invalido' | 'precisao_baixa' | 'foto_rejeitada'} MotivoInvalido
  */
 
 /** Tolerância máxima entre o horário informado pelo cliente e o do servidor. */
@@ -34,15 +35,18 @@ const MAX_CLOCK_SKEW_MS = 5 * 60 * 1000;
  *  3. A captura da SPTrans para esse veículo precisa ser recente
  *     (<= `SPTRANS_POSITION_MAX_AGE_S`), senão a comparação não é confiável.
  *  4. O horário informado pelo cliente não pode divergir muito do horário do servidor.
+ *  5. A precisão do GPS precisa ser boa o bastante (senão a localização é
+ *     "aproximada" e a comparação de 150 m não faz sentido).
  *
  * @param {object} params
  * @param {number} params.codigoLinha  Código interno da linha (campo `cl` da busca).
  * @param {number} params.lat          Latitude do celular.
  * @param {number} params.lng          Longitude do celular.
+ * @param {number} [params.accuracy]   Precisão do GPS em metros (quanto menor, melhor).
  * @param {string} params.capturadoEm  ISO do momento em que o cliente capturou GPS/foto.
  * @returns {Promise<ResultadoValidacao>}
  */
-export async function validarPresencaTrajeto({ codigoLinha, lat, lng, capturadoEm }) {
+export async function validarPresencaTrajeto({ codigoLinha, lat, lng, accuracy, capturadoEm }) {
   const agora = Date.now();
   const validadoEm = new Date(agora).toISOString();
 
@@ -52,6 +56,16 @@ export async function validarPresencaTrajeto({ codigoLinha, lat, lng, capturadoE
     const detalhes = await detalhesMelhorEsforco(codigoLinha, { lat, lng });
     logger.warn('[trajeto] validado via VALIDATION_BYPASS (dev)', { codigoLinha });
     return { valido: true, motivo: null, validadoEm, detalhes };
+  }
+
+  // Localização "aproximada" (permissão sem precisão) reporta accuracy enorme.
+  if (typeof accuracy === 'number' && accuracy > env.validationMaxAccuracyM) {
+    return {
+      valido: false,
+      motivo: 'precisao_baixa',
+      validadoEm,
+      detalhes: baseDetalhes(),
+    };
   }
 
   const skew = Math.abs(agora - new Date(capturadoEm).getTime());

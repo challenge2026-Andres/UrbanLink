@@ -27,6 +27,7 @@ const FILE_PATH = fileURLToPath(new URL('../../data/store.json', import.meta.url
  * @property {number} ecoa
  * @property {number | null} distanciaAoOnibusM
  * @property {string} fotoSha256
+ * @property {{ aprovada: boolean, confianca: number, rotulo: string | null } | null} analiseFoto
  * @property {string} validadoEm
  */
 
