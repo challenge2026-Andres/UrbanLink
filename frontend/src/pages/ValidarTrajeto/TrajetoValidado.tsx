@@ -1,10 +1,11 @@
-import { Check, MapPin, X } from 'lucide-react'
+import { Check, Leaf, MapPin, Route, Sparkles, X } from 'lucide-react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useTrajeto } from '../../flows/trajeto/useTrajeto'
 import type { MotivoInvalido } from '../../lib/api'
 import { descreverSentido } from '../../lib/api'
-import { sampleTrip } from '../../data/mock'
 import styles from './validar.module.css'
+
+const nf = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 })
 
 const MOTIVO_TEXTO: Record<MotivoInvalido, string> = {
   fora_do_raio: 'Você está longe demais de um ônibus dessa linha.',
@@ -71,6 +72,8 @@ export function TrajetoValidado() {
     )
   }
 
+  const r = resultado.recompensa
+
   return (
     <div className={styles.success}>
       <span className={styles.successMark}>
@@ -80,8 +83,10 @@ export function TrajetoValidado() {
       <p className={styles.successText}>Você contribuiu para uma mobilidade mais sustentável.</p>
 
       <div className={styles.receipt}>
-        <p className={styles.receiptReward}>+{sampleTrip.reward.toLocaleString('pt-BR')} Ecoa</p>
-        <p className={styles.receiptCaption}>Créditos adicionados à sua carteira</p>
+        <p className={styles.receiptReward}>+{(r?.ecoa ?? 0).toLocaleString('pt-BR')} Ecoa</p>
+        <p className={styles.receiptCaption}>
+          {r ? `+${r.pontos} pontos` : 'Créditos adicionados à sua carteira'}
+        </p>
 
         <div className={styles.receiptList}>
           <div className={styles.receiptRow}>
@@ -90,23 +95,27 @@ export function TrajetoValidado() {
               Linha {linha.lt} · {descreverSentido(linha)}
             </span>
           </div>
-          <div className={styles.receiptRow}>
-            <Check size={16} />
-            <span>
-              {detalhes.distanciaMetros != null &&
-              detalhes.distanciaMetros <= detalhes.raioToleranciaM
-                ? `Presença confirmada a ${detalhes.distanciaMetros} m de um ônibus`
-                : 'Presença confirmada'}
-            </span>
-          </div>
-          {detalhes.horaConsultaSptrans && (
+          {r && (
             <div className={styles.receiptRow}>
-              <Check size={16} />
-              <span>Posição da linha capturada às {detalhes.horaConsultaSptrans}</span>
+              <Route size={16} />
+              <span>{nf.format(r.distanciaKm)} km percorridos (estimativa)</span>
+            </div>
+          )}
+          {r && (
+            <div className={styles.receiptRow}>
+              <Leaf size={16} />
+              <span>{nf.format(r.co2EvitadoKg)} kg de CO₂ evitado</span>
             </div>
           )}
         </div>
       </div>
+
+      {resultado.desafioConcluido && (
+        <p className={styles.desafio}>
+          <Sparkles size={16} />
+          Desafio semanal concluído! +150 Ecoa de bônus
+        </p>
+      )}
 
       <div className={styles.successActions}>
         <button

@@ -36,6 +36,7 @@ export function ValidarTrajetoProcessando() {
 
         const resultado = await validarTrajeto({
           codigoLinha: linha.cl,
+          linha: { lt: linha.lt, sl: linha.sl, tp: linha.tp, ts: linha.ts },
           lat: posicao.lat,
           lng: posicao.lng,
           accuracy: Math.round(posicao.accuracy),

@@ -1,8 +1,8 @@
 # UrbanLink — Frontend
 
-App mobile-first em **React + Vite + TypeScript**. O fluxo "Novo trajeto → Validar
-trajeto" usa GPS (HTML5 Geolocation), câmera e o backend de verdade; as telas de
-impacto e carteira ainda usam dados mockados (viram reais na Fase 4).
+App mobile-first em **React + Vite + TypeScript**. Todas as telas consomem o backend
+de verdade: GPS (HTML5 Geolocation) e câmera na validação de trajeto; Home, Meu Impacto
+e Carteira Ecoa leem `GET /api/perfil` e `GET /api/carteira`.
 
 ## Stack
 
@@ -73,10 +73,10 @@ frontend/src/
 ├─ main.tsx                 # bootstrap + BrowserRouter
 ├─ App.tsx                  # rotas + <TrajetoProvider>
 ├─ styles/                  # tokens.css + global.css
-├─ types/                   # tipos de domínio
-├─ data/mock.ts             # dados mockados (telas de impacto/carteira)
+├─ types/                   # tipos de domínio (Perfil, Carteira, ...)
 ├─ lib/                     # api.ts (backend), geo.ts (GPS), imagem.ts (foto)
+├─ hooks/useApi.ts          # busca de dados com loading/erro/reload
 ├─ flows/trajeto/           # contexto do fluxo de validação
-├─ components/              # AppLayout, BottomNav, Button, StatCard, Stepper, ...
+├─ components/              # AppLayout, BottomNav, Button, StatCard, StatePanel, ...
 └─ pages/                   # uma pasta por tela (.tsx + .module.css)
 ```

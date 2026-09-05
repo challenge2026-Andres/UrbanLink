@@ -1,69 +1,80 @@
-/** Modos de transporte suportados na validação de trajeto. */
+/** Modos de transporte oferecidos na tela de novo trajeto. */
 export type TransportMode = 'onibus' | 'trem' | 'metro'
 
-/** Métricas de impacto acumulado do usuário. */
-export interface ImpactStats {
-  trips: number
-  distanceKm: number
-  co2AvoidedKg: number
-}
-
 /** Nível de gamificação do usuário. */
-export interface UserLevel {
-  name: string
-  level: number
-  tripsToNextLevel: number
-  progress: number // 0..1
+export interface Nivel {
+  numero: number
+  nome: string
+  trajetosParaProximo: number
+  progresso: number // 0..1
 }
 
-/** Desafio semanal exibido na Home e em "Meu Impacto". */
-export interface WeeklyChallenge {
-  id: string
-  title: string
-  description: string
-  current: number
-  target: number
+/** Métricas de impacto acumulado. */
+export interface Impacto {
+  trajetos: number
+  distanciaKm: number
+  co2EvitadoKg: number
 }
 
-/** Conquista/badge do usuário. */
-export interface Achievement {
+/** Desafio semanal. */
+export interface DesafioSemana {
+  titulo: string
+  descricao: string
+  atual: number
+  meta: number
+  recompensa: number
+  concluido: boolean
+}
+
+/** Conquista/badge. */
+export interface Conquista {
   id: string
   label: string
   caption: string
   unlocked: boolean
 }
 
+/** Perfil consolidado (GET /api/perfil). */
+export interface Perfil {
+  nome: string
+  pontos: number
+  ecoaSaldo: number
+  nivel: Nivel
+  impacto: Impacto
+  desafioSemana: DesafioSemana
+  conquistas: Conquista[]
+}
+
 /** Opção de resgate de créditos Ecoa. */
-export interface RewardOption {
+export interface OpcaoResgate {
   id: string
-  title: string
-  requirement: string
-  icon: 'ticket' | 'cash' | 'tag'
+  titulo: string
+  descricao: string
+  icone: 'ticket' | 'cash' | 'tag'
+  custo: number
 }
 
-/** Lançamento no histórico da carteira Ecoa. */
-export interface WalletEntry {
+/** Lançamento no histórico da carteira. */
+export interface Lancamento {
   id: string
-  label: string
-  detail: string
-  amount: number // positivo = crédito, negativo = resgate
-  when: string
+  tipo: 'credito_trajeto' | 'credito_desafio' | 'resgate'
+  descricao: string
+  detalhe: string
+  valor: number // positivo = crédito, negativo = resgate
+  em: string
 }
 
-/** Dados de um trajeto em validação (fluxo "Validar trajeto"). */
-export interface TripDraft {
-  mode: TransportMode
-  line: string
-  location: string
-  time: string
-  distanceKm: number
-  co2AvoidedKg: number
-  reward: number
+/** Carteira Ecoa (GET /api/carteira). */
+export interface Carteira {
+  saldo: number
+  opcoesResgate: OpcaoResgate[]
+  historico: Lancamento[]
 }
 
-/** Perfil resumido do usuário para o cabeçalho. */
-export interface UserProfile {
-  name: string
-  points: number
-  ecoaBalance: number
+/** Recompensa concedida por um trajeto validado. */
+export interface Recompensa {
+  distanciaKm: number
+  co2EvitadoKg: number
+  pontos: number
+  ecoa: number
 }
