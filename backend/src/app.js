@@ -7,6 +7,7 @@ import rateLimit from 'express-rate-limit';
 import { env } from './config/env.js';
 import { healthRouter } from './routes/health.js';
 import { linhasRouter } from './routes/linhas.js';
+import { trajetosRouter } from './routes/trajetos.js';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
 
 /**
@@ -28,9 +29,6 @@ export function createApp() {
   // CORS restrito à origem do frontend.
   app.use(cors({ origin: env.corsOrigin }));
 
-  // Body parser com limite pequeno — as rotas atuais não recebem corpo grande.
-  app.use(express.json({ limit: '10kb' }));
-
   // Log de requisições.
   app.use(morgan(env.isProduction ? 'combined' : 'dev'));
 
@@ -48,6 +46,11 @@ export function createApp() {
 
   app.use('/api/health', healthRouter);
   app.use('/api/linhas', linhasRouter);
+
+  // A validação de trajeto recebe uma foto em base64; libera um corpo maior
+  // apenas nesta rota (as demais não recebem corpo).
+  const fotoJsonLimit = Math.ceil((env.maxPhotoBytes * 1.4) / 1024) + 64;
+  app.use('/api/trajetos', express.json({ limit: `${fotoJsonLimit}kb` }), trajetosRouter);
 
   app.use(notFound);
   app.use(errorHandler);

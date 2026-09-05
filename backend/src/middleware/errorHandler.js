@@ -26,6 +26,14 @@ export function errorHandler(err, req, res, next) {
     });
   }
 
+  // Erros do body-parser (JSON malformado, corpo grande demais).
+  if (err?.type === 'entity.too.large') {
+    return res.status(413).json({ error: 'payload_too_large', message: 'Corpo da requisição grande demais.' });
+  }
+  if (err?.type === 'entity.parse.failed') {
+    return res.status(400).json({ error: 'invalid_json', message: 'JSON inválido no corpo da requisição.' });
+  }
+
   if (err instanceof SptransError) {
     logger.error(err.message, { ...err.meta });
     return res.status(err.httpStatus).json({

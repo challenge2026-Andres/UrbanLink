@@ -27,6 +27,10 @@ e **nunca** deve ser commitado.
 | `SPTRANS_API_KEY`  | Chave da API Olho Vivo (**obrigatória**)              | —                                              |
 | `SPTRANS_BASE_URL` | URL base da API da SPTrans                             | `https://api.olhovivo.sptrans.com.br/v2.1`      |
 | `CORS_ORIGIN`      | Origem liberada no CORS (URL do frontend)             | `http://localhost:5173`                         |
+| `VALIDATION_RADIUS_M` | Raio (m) entre celular e ônibus para o check-in valer | `150`                                       |
+| `SPTRANS_POSITION_MAX_AGE_S` | Idade máxima (s) da captura da SPTrans      | `90`                                            |
+| `MAX_PHOTO_BYTES` | Tamanho máximo da foto enviada na validação            | `2097152` (2 MiB)                               |
+| `VALIDATION_BYPASS` | **Só dev:** `true` aceita qualquer trajeto (ignorado se `NODE_ENV=production`) | `false`             |
 
 ## Rodando
 
@@ -83,6 +87,39 @@ curl "http://localhost:3333/api/linhas/1273/posicoes"
 
 `py` = latitude, `px` = longitude, `ta` = timestamp UTC da captura.
 
+### `POST /api/trajetos/validar`
+
+Valida a presença do usuário num trajeto: compara o GPS do celular com a posição
+real dos veículos da linha (Haversine + raio de tolerância + checagem de recência).
+A foto é inspecionada e registrada em log (mime, bytes, hash) — **não é armazenada**.
+
+```jsonc
+// corpo
+{
+  "codigoLinha": 609,
+  "lat": -23.5462, "lng": -46.6466, "accuracy": 18,
+  "capturadoEm": "2026-09-05T20:45:00.000Z",
+  "foto": "data:image/jpeg;base64,..."
+}
+```
+
+```jsonc
+// resposta
+{
+  "valido": true,
+  "motivo": null,                     // ou "fora_do_raio" | "sem_veiculos" | "posicao_desatualizada" | "timestamp_invalido"
+  "validadoEm": "2026-09-05T20:45:03.915Z",
+  "detalhes": {
+    "raioToleranciaM": 150,
+    "distanciaMetros": 42,
+    "veiculoMaisProximo": { "prefixo": "64911", "lat": -23.5, "lng": -46.6, "capturadoEm": "..." },
+    "horaConsultaSptrans": "17:46",
+    "veiculosNaLinha": 5
+  },
+  "foto": { "recebida": true, "bytes": 84213, "sha256": "..." }
+}
+```
+
 ## Estrutura
 
 ```
@@ -92,13 +129,17 @@ backend/src/
 ├─ config/env.js          # lê e valida variáveis de ambiente
 ├─ services/
 │  └─ sptransClient.js    # auth + cookie de sessão + reauth + wrappers
+│  └─ validacaoTrajeto.js # compara GPS do celular x posição real dos ônibus
 ├─ routes/
 │  ├─ health.js
-│  └─ linhas.js           # validação de input (zod) + proxy
+│  ├─ linhas.js           # validação de input (zod) + proxy
+│  └─ trajetos.js         # POST /validar (GPS + foto + horário)
 ├─ middleware/
 │  └─ errorHandler.js     # 404 e handler de erros central
 └─ utils/
    ├─ asyncHandler.js
+   ├─ foto.js             # valida/inspeciona a foto (sem armazenar)
+   ├─ geo.js              # distância Haversine
    └─ logger.js
 ```
 
@@ -109,3 +150,6 @@ backend/src/
 - Rate limiting (60 req/min por IP) protege contra abuso e estouro de cota da SPTrans.
 - Validação e sanitização de todos os parâmetros de entrada com `zod`.
 - Erros da SPTrans e internos nunca vazam stack trace ao cliente.
+- Corpo JSON limitado por rota (a foto só é aceita em `/api/trajetos`); a imagem
+  é validada por mime/tamanho e **não é persistida**.
+- Checagem de _clock skew_ do horário informado pelo cliente (anti-replay).
