@@ -28,6 +28,7 @@ e **nunca** deve ser commitado.
 | `SPTRANS_BASE_URL` | URL base da API da SPTrans                             | `https://api.olhovivo.sptrans.com.br/v2.1`      |
 | `CORS_ORIGIN`      | Origem liberada no CORS (URL do frontend)             | `http://localhost:5173`                         |
 | `VALIDATION_RADIUS_M` | Raio (m) entre celular e ônibus para o check-in valer | `150`                                       |
+| `VALIDATION_MAX_ACCURACY_M` | Precisão de GPS máxima aceita (acima = "localização aproximada") | `500`                    |
 | `SPTRANS_POSITION_MAX_AGE_S` | Idade máxima (s) da captura da SPTrans      | `90`                                            |
 | `MAX_PHOTO_BYTES` | Tamanho máximo da foto enviada na validação            | `2097152` (2 MiB)                               |
 | `VALIDATION_BYPASS` | **Só dev:** `true` aceita qualquer trajeto (ignorado se `NODE_ENV=production`) | `false`             |
@@ -108,7 +109,7 @@ A foto é inspecionada e registrada em log (mime, bytes, hash) — **não é arm
 // resposta (quando válido, registra o trajeto e credita pontos + Ecoa)
 {
   "valido": true,
-  "motivo": null,                     // ou "fora_do_raio" | "sem_veiculos" | "posicao_desatualizada" | "timestamp_invalido" | "foto_rejeitada"
+  "motivo": null,                     // ou "fora_do_raio" | "sem_veiculos" | "posicao_desatualizada" | "timestamp_invalido" | "precisao_baixa" | "foto_rejeitada"
   "validadoEm": "2026-09-05T20:45:03.915Z",
   "detalhes": { "raioToleranciaM": 150, "distanciaMetros": 42, "veiculoMaisProximo": {…}, "horaConsultaSptrans": "17:46", "veiculosNaLinha": 5 },
   "recompensa": { "distanciaKm": 7, "co2EvitadoKg": 0.57, "pontos": 52, "ecoa": 52 },

@@ -12,6 +12,8 @@ const MOTIVO_TEXTO: Record<MotivoInvalido, string> = {
   sem_veiculos: 'Não há veículos dessa linha em operação agora.',
   posicao_desatualizada: 'A posição dos ônibus está desatualizada. Tente de novo em instantes.',
   timestamp_invalido: 'O horário do seu dispositivo parece estar incorreto.',
+  precisao_baixa:
+    'Sua localização está imprecisa. Ative a localização precisa/exata nas configurações e tente de novo.',
   foto_rejeitada: 'A foto não parece ser do interior de um transporte público. Tire outra de dentro do veículo.',
 }
 

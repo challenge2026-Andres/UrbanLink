@@ -29,6 +29,7 @@ export type MotivoInvalido =
   | 'fora_do_raio'
   | 'posicao_desatualizada'
   | 'timestamp_invalido'
+  | 'precisao_baixa'
   | 'foto_rejeitada'
 
 export interface AnaliseFoto {

@@ -57,6 +57,7 @@ trajetosRouter.post(
       codigoLinha: body.codigoLinha,
       lat: body.lat,
       lng: body.lng,
+      accuracy: body.accuracy,
       capturadoEm: body.capturadoEm,
     });
 
