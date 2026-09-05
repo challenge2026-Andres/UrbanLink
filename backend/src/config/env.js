@@ -16,7 +16,17 @@ import 'dotenv/config';
  *   validationRadiusM: number,
  *   sptransPositionMaxAgeS: number,
  *   maxPhotoBytes: number,
- *   validationBypass: boolean
+ *   validationBypass: boolean,
+ *   gamificacao: {
+ *     distanciaMediaKm: number,
+ *     fatorCo2CarroKgKm: number,
+ *     fatorCo2OnibusKgKm: number,
+ *     pontosBase: number,
+ *     pontosPorKm: number,
+ *     trajetosPorNivel: number,
+ *     desafioSemanalMeta: number,
+ *     desafioSemanalRecompensa: number
+ *   }
  * }}
  */
 function loadEnv() {
@@ -30,6 +40,15 @@ function loadEnv() {
     SPTRANS_POSITION_MAX_AGE_S = '90',
     MAX_PHOTO_BYTES = '2097152',
     VALIDATION_BYPASS = 'false',
+    // Gamificação (Fase 4)
+    DISTANCIA_MEDIA_KM = '7',
+    FATOR_CO2_CARRO_KG_KM = '0.171',
+    FATOR_CO2_ONIBUS_KG_KM = '0.089',
+    PONTOS_BASE = '10',
+    PONTOS_POR_KM = '6',
+    TRAJETOS_POR_NIVEL = '3',
+    DESAFIO_SEMANAL_META = '5',
+    DESAFIO_SEMANAL_RECOMPENSA = '150',
   } = process.env;
 
   const missing = [];
@@ -57,6 +76,20 @@ function loadEnv() {
     return parsed;
   };
 
+  /**
+   * @param {string} value
+   * @param {string} name
+   * @returns {number}
+   */
+  const toPositiveNumber = (value, name) => {
+    const parsed = Number.parseFloat(value);
+    if (Number.isNaN(parsed) || parsed <= 0) {
+      console.error(`[config] ${name} inválida: "${value}" (esperado número positivo).`);
+      process.exit(1);
+    }
+    return parsed;
+  };
+
   // Bypass da validação de presença: só para testar o fluxo em desenvolvimento.
   // NUNCA tem efeito em produção, mesmo se a variável estiver setada.
   const validationBypass = VALIDATION_BYPASS === 'true' && NODE_ENV !== 'production';
@@ -77,6 +110,19 @@ function loadEnv() {
     sptransPositionMaxAgeS: toPositiveInt(SPTRANS_POSITION_MAX_AGE_S, 'SPTRANS_POSITION_MAX_AGE_S'),
     maxPhotoBytes: toPositiveInt(MAX_PHOTO_BYTES, 'MAX_PHOTO_BYTES'),
     validationBypass,
+    gamificacao: {
+      distanciaMediaKm: toPositiveNumber(DISTANCIA_MEDIA_KM, 'DISTANCIA_MEDIA_KM'),
+      fatorCo2CarroKgKm: toPositiveNumber(FATOR_CO2_CARRO_KG_KM, 'FATOR_CO2_CARRO_KG_KM'),
+      fatorCo2OnibusKgKm: toPositiveNumber(FATOR_CO2_ONIBUS_KG_KM, 'FATOR_CO2_ONIBUS_KG_KM'),
+      pontosBase: toPositiveInt(PONTOS_BASE, 'PONTOS_BASE'),
+      pontosPorKm: toPositiveNumber(PONTOS_POR_KM, 'PONTOS_POR_KM'),
+      trajetosPorNivel: toPositiveInt(TRAJETOS_POR_NIVEL, 'TRAJETOS_POR_NIVEL'),
+      desafioSemanalMeta: toPositiveInt(DESAFIO_SEMANAL_META, 'DESAFIO_SEMANAL_META'),
+      desafioSemanalRecompensa: toPositiveInt(
+        DESAFIO_SEMANAL_RECOMPENSA,
+        'DESAFIO_SEMANAL_RECOMPENSA',
+      ),
+    },
   };
 }
 

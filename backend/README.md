@@ -97,6 +97,7 @@ A foto é inspecionada e registrada em log (mime, bytes, hash) — **não é arm
 // corpo
 {
   "codigoLinha": 609,
+  "linha": { "lt": "875A", "sl": 1, "tp": "PERDIZES", "ts": "AEROPORTO" },
   "lat": -23.5462, "lng": -46.6466, "accuracy": 18,
   "capturadoEm": "2026-09-05T20:45:00.000Z",
   "foto": "data:image/jpeg;base64,..."
@@ -104,44 +105,65 @@ A foto é inspecionada e registrada em log (mime, bytes, hash) — **não é arm
 ```
 
 ```jsonc
-// resposta
+// resposta (quando válido, registra o trajeto e credita pontos + Ecoa)
 {
   "valido": true,
   "motivo": null,                     // ou "fora_do_raio" | "sem_veiculos" | "posicao_desatualizada" | "timestamp_invalido"
   "validadoEm": "2026-09-05T20:45:03.915Z",
-  "detalhes": {
-    "raioToleranciaM": 150,
-    "distanciaMetros": 42,
-    "veiculoMaisProximo": { "prefixo": "64911", "lat": -23.5, "lng": -46.6, "capturadoEm": "..." },
-    "horaConsultaSptrans": "17:46",
-    "veiculosNaLinha": 5
-  },
+  "detalhes": { "raioToleranciaM": 150, "distanciaMetros": 42, "veiculoMaisProximo": {…}, "horaConsultaSptrans": "17:46", "veiculosNaLinha": 5 },
+  "recompensa": { "distanciaKm": 7, "co2EvitadoKg": 0.57, "pontos": 52, "ecoa": 52 },
+  "desafioConcluido": false,
   "foto": { "recebida": true, "bytes": 84213, "sha256": "..." }
 }
 ```
 
+### `GET /api/perfil`
+
+Perfil consolidado: `{ nome, pontos, ecoaSaldo, nivel, impacto: { trajetos, distanciaKm, co2EvitadoKg }, desafioSemana, conquistas }`.
+
+### `GET /api/carteira`
+
+`{ saldo, opcoesResgate: [{ id, titulo, descricao, icone, custo }], historico: [{ tipo, descricao, detalhe, valor, em }] }`.
+
+### `POST /api/carteira/resgatar`
+
+Corpo `{ "opcaoId": "passagem" }`. Debita o custo do saldo Ecoa e registra o lançamento.
+Retorna `{ saldo, resgate }` (409 se saldo insuficiente).
+
+### `POST /api/dev/reset` (só fora de produção)
+
+Zera os dados de gamificação (usuário demo, trajetos, carteira).
+
 ## Estrutura
 
 ```
-backend/src/
-├─ server.js              # entrypoint: sobe o HTTP e trata shutdown
-├─ app.js                 # monta o Express (helmet, cors, rate limit, rotas)
-├─ config/env.js          # lê e valida variáveis de ambiente
-├─ services/
-│  └─ sptransClient.js    # auth + cookie de sessão + reauth + wrappers
-│  └─ validacaoTrajeto.js # compara GPS do celular x posição real dos ônibus
-├─ routes/
-│  ├─ health.js
-│  ├─ linhas.js           # validação de input (zod) + proxy
-│  └─ trajetos.js         # POST /validar (GPS + foto + horário)
-├─ middleware/
-│  └─ errorHandler.js     # 404 e handler de erros central
-└─ utils/
-   ├─ asyncHandler.js
-   ├─ foto.js             # valida/inspeciona a foto (sem armazenar)
-   ├─ geo.js              # distância Haversine
-   └─ logger.js
+backend/
+├─ data/store.json        # persistência (gitignored, criado em runtime)
+└─ src/
+   ├─ server.js           # entrypoint: sobe o HTTP e trata shutdown
+   ├─ app.js              # monta o Express (helmet, cors, rate limit, rotas)
+   ├─ config/env.js       # lê e valida variáveis de ambiente
+   ├─ store/store.js      # leitura/escrita do store JSON
+   ├─ services/
+   │  ├─ sptransClient.js    # auth + cookie de sessão + reauth + wrappers
+   │  ├─ validacaoTrajeto.js # compara GPS do celular x posição real dos ônibus
+   │  ├─ gamificacao.js      # fórmulas de CO₂, pontos, nível, desafio
+   │  ├─ perfil.js           # monta perfil e carteira (views)
+   │  └─ recompensas.js      # credita trajeto, resgata Ecoa (mutações)
+   ├─ routes/               # health, linhas, trajetos, perfil, carteira, dev
+   ├─ middleware/errorHandler.js
+   └─ utils/               # asyncHandler, foto, geo (Haversine), logger
 ```
+
+## Gamificação (metodologia)
+
+- **CO₂ evitado** = `distância × (fator_carro − fator_ônibus)` com fatores de emissão
+  por passageiro-km (env vars, padrão 0,171 / 0,089 kg CO₂/km).
+- **Distância**: estimativa fixa por trajeto (`DISTANCIA_MEDIA_KM`, padrão 7 km).
+  Simplificação deliberada — a evolução é medir a distância real com check-in + check-out.
+- **Pontos** = `PONTOS_BASE + round(distância × PONTOS_POR_KM)`; `Ecoa = pontos`.
+- **Nível** por total de trajetos (`TRAJETOS_POR_NIVEL`, padrão 3).
+- **Desafio semanal**: N trajetos numa semana ISO → bônus em Ecoa, creditado uma vez.
 
 ## Segurança aplicada
 
