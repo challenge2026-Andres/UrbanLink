@@ -1,4 +1,4 @@
-import { Check, Leaf, MapPin, Route, Sparkles, X } from 'lucide-react'
+import { Camera, Check, ImageOff, Leaf, MapPin, Route, Sparkles, X } from 'lucide-react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useTrajeto } from '../../flows/trajeto/useTrajeto'
 import type { MotivoInvalido } from '../../lib/api'
@@ -12,6 +12,7 @@ const MOTIVO_TEXTO: Record<MotivoInvalido, string> = {
   sem_veiculos: 'Não há veículos dessa linha em operação agora.',
   posicao_desatualizada: 'A posição dos ônibus está desatualizada. Tente de novo em instantes.',
   timestamp_invalido: 'O horário do seu dispositivo parece estar incorreto.',
+  foto_rejeitada: 'A foto não parece ser do interior de um transporte público. Tire outra de dentro do veículo.',
 }
 
 /** Tela final: mostra o resultado da validação (sucesso ou falha). */
@@ -29,17 +30,31 @@ export function TrajetoValidado() {
   }
 
   if (!resultado.valido) {
+    const fotoRejeitada = resultado.motivo === 'foto_rejeitada'
     return (
       <div className={`${styles.success} ${styles.successFail}`}>
         <span className={`${styles.successMark} ${styles.successMarkFail}`}>
-          <X size={40} strokeWidth={3} />
+          {fotoRejeitada ? <ImageOff size={36} strokeWidth={2.5} /> : <X size={40} strokeWidth={3} />}
         </span>
-        <h1 className={styles.successTitle}>Não conseguimos validar</h1>
+        <h1 className={styles.successTitle}>
+          {fotoRejeitada ? 'Foto não aceita' : 'Não conseguimos validar'}
+        </h1>
         <p className={styles.successText}>
           {resultado.motivo ? MOTIVO_TEXTO[resultado.motivo] : 'Tente novamente.'}
         </p>
 
-        {detalhes.distanciaMetros != null && (
+        {fotoRejeitada && resultado.foto.analise?.rotulo && (
+          <div className={styles.receipt}>
+            <div className={styles.receiptList}>
+              <div className={styles.receiptRow}>
+                <ImageOff size={16} />
+                <span>Identificamos na foto: {resultado.foto.analise.rotulo}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {!fotoRejeitada && detalhes.distanciaMetros != null && (
           <div className={styles.receipt}>
             <div className={styles.receiptList}>
               <div className={styles.receiptRow}>
@@ -60,9 +75,9 @@ export function TrajetoValidado() {
           <button
             type="button"
             className={styles.successPrimary}
-            onClick={() => sair('/novo-trajeto')}
+            onClick={() => navigate(fotoRejeitada ? '/validar/foto' : '/novo-trajeto')}
           >
-            Tentar outro trajeto
+            {fotoRejeitada ? 'Tirar outra foto' : 'Tentar outro trajeto'}
           </button>
           <button type="button" className={styles.successGhost} onClick={() => sair('/')}>
             Voltar para UrbanLink
@@ -73,6 +88,7 @@ export function TrajetoValidado() {
   }
 
   const r = resultado.recompensa
+  const analise = resultado.foto.analise
 
   return (
     <div className={styles.success}>
@@ -107,8 +123,21 @@ export function TrajetoValidado() {
               <span>{nf.format(r.co2EvitadoKg)} kg de CO₂ evitado</span>
             </div>
           )}
+          {analise?.executada && analise.aprovada && (
+            <div className={styles.receiptRow}>
+              <Camera size={16} />
+              <span>Foto verificada</span>
+            </div>
+          )}
         </div>
       </div>
+
+      {analise?.executada && !analise.aprovada && (
+        <p className={styles.avisoFoto}>
+          <ImageOff size={16} />
+          Não conseguimos confirmar que a foto é do interior do transporte.
+        </p>
+      )}
 
       {resultado.desafioConcluido && (
         <p className={styles.desafio}>
