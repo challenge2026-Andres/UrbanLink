@@ -92,7 +92,12 @@ export function TrajetoValidado() {
           </div>
           <div className={styles.receiptRow}>
             <Check size={16} />
-            <span>Presença confirmada a {detalhes.distanciaMetros} m de um ônibus</span>
+            <span>
+              {detalhes.distanciaMetros != null &&
+              detalhes.distanciaMetros <= detalhes.raioToleranciaM
+                ? `Presença confirmada a ${detalhes.distanciaMetros} m de um ônibus`
+                : 'Presença confirmada'}
+            </span>
           </div>
           {detalhes.horaConsultaSptrans && (
             <div className={styles.receiptRow}>

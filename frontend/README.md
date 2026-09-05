@@ -43,6 +43,10 @@ GPS e câmera só funcionam em `localhost` ou HTTPS. Para testar num aparelho:
    (ex.: `https://192.168.1.11:5173`) e aceite o aviso de certificado
    (é um certificado local autoassinado).
 
+Para ver a **tela de sucesso sem estar dentro de um ônibus**, ligue o bypass de
+dev no backend: `VALIDATION_BYPASS=true` no `backend/.env` (nunca funciona em
+produção). Com ele, qualquer validação é aceita.
+
 ## Telas (a partir do Figma)
 
 | Rota                    | Tela                                            |

@@ -30,6 +30,7 @@ e **nunca** deve ser commitado.
 | `VALIDATION_RADIUS_M` | Raio (m) entre celular e ônibus para o check-in valer | `150`                                       |
 | `SPTRANS_POSITION_MAX_AGE_S` | Idade máxima (s) da captura da SPTrans      | `90`                                            |
 | `MAX_PHOTO_BYTES` | Tamanho máximo da foto enviada na validação            | `2097152` (2 MiB)                               |
+| `VALIDATION_BYPASS` | **Só dev:** `true` aceita qualquer trajeto (ignorado se `NODE_ENV=production`) | `false`             |
 
 ## Rodando
 

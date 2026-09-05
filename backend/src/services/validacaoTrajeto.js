@@ -46,6 +46,14 @@ export async function validarPresencaTrajeto({ codigoLinha, lat, lng, capturadoE
   const agora = Date.now();
   const validadoEm = new Date(agora).toISOString();
 
+  // Atalho de desenvolvimento: considera qualquer trajeto válido (ver env.js).
+  // Ainda tenta buscar a posição real para preencher os detalhes da tela.
+  if (env.validationBypass) {
+    const detalhes = await detalhesMelhorEsforco(codigoLinha, { lat, lng });
+    logger.warn('[trajeto] validado via VALIDATION_BYPASS (dev)', { codigoLinha });
+    return { valido: true, motivo: null, validadoEm, detalhes };
+  }
+
   const skew = Math.abs(agora - new Date(capturadoEm).getTime());
   if (Number.isNaN(skew) || skew > MAX_CLOCK_SKEW_MS) {
     return {
@@ -129,4 +137,39 @@ function baseDetalhes() {
     horaConsultaSptrans: null,
     veiculosNaLinha: 0,
   };
+}
+
+/**
+ * Busca a posição real dos veículos e monta os detalhes para exibição,
+ * sem aplicar nenhuma regra de validação. Nunca lança — em erro devolve o base.
+ * Usado apenas pelo bypass de desenvolvimento.
+ *
+ * @param {number} codigoLinha
+ * @param {{ lat: number, lng: number }} celular
+ * @returns {Promise<ResultadoValidacao['detalhes']>}
+ */
+async function detalhesMelhorEsforco(codigoLinha, celular) {
+  try {
+    const posicao = await posicaoPorLinha(codigoLinha);
+    const veiculos = Array.isArray(posicao?.vs) ? posicao.vs : [];
+    let maisProximo = null;
+    for (const v of veiculos) {
+      if (typeof v.py !== 'number' || typeof v.px !== 'number') continue;
+      const distancia = distanciaMetros(celular, { lat: v.py, lng: v.px });
+      if (!maisProximo || distancia < maisProximo.distancia) {
+        maisProximo = { distancia, prefixo: v.p != null ? String(v.p) : null, lat: v.py, lng: v.px, capturadoEm: v.ta ?? null };
+      }
+    }
+    return {
+      raioToleranciaM: env.validationRadiusM,
+      distanciaMetros: maisProximo?.distancia ?? null,
+      veiculoMaisProximo: maisProximo
+        ? { prefixo: maisProximo.prefixo, lat: maisProximo.lat, lng: maisProximo.lng, capturadoEm: maisProximo.capturadoEm }
+        : null,
+      horaConsultaSptrans: posicao?.hr ?? null,
+      veiculosNaLinha: veiculos.length,
+    };
+  } catch {
+    return baseDetalhes();
+  }
 }

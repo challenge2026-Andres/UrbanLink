@@ -15,7 +15,8 @@ import 'dotenv/config';
  *   corsOrigin: string,
  *   validationRadiusM: number,
  *   sptransPositionMaxAgeS: number,
- *   maxPhotoBytes: number
+ *   maxPhotoBytes: number,
+ *   validationBypass: boolean
  * }}
  */
 function loadEnv() {
@@ -28,6 +29,7 @@ function loadEnv() {
     VALIDATION_RADIUS_M = '150',
     SPTRANS_POSITION_MAX_AGE_S = '90',
     MAX_PHOTO_BYTES = '2097152',
+    VALIDATION_BYPASS = 'false',
   } = process.env;
 
   const missing = [];
@@ -55,6 +57,15 @@ function loadEnv() {
     return parsed;
   };
 
+  // Bypass da validação de presença: só para testar o fluxo em desenvolvimento.
+  // NUNCA tem efeito em produção, mesmo se a variável estiver setada.
+  const validationBypass = VALIDATION_BYPASS === 'true' && NODE_ENV !== 'production';
+  if (validationBypass) {
+    console.warn(
+      '[config] AVISO: VALIDATION_BYPASS ativo — todo trajeto será considerado válido. Apenas para dev.',
+    );
+  }
+
   return {
     port: toPositiveInt(PORT, 'PORT'),
     nodeEnv: NODE_ENV,
@@ -65,6 +76,7 @@ function loadEnv() {
     validationRadiusM: toPositiveInt(VALIDATION_RADIUS_M, 'VALIDATION_RADIUS_M'),
     sptransPositionMaxAgeS: toPositiveInt(SPTRANS_POSITION_MAX_AGE_S, 'SPTRANS_POSITION_MAX_AGE_S'),
     maxPhotoBytes: toPositiveInt(MAX_PHOTO_BYTES, 'MAX_PHOTO_BYTES'),
+    validationBypass,
   };
 }
 
