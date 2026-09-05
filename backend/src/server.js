@@ -1,0 +1,21 @@
+import { createApp } from './app.js';
+import { env } from './config/env.js';
+import { logger } from './utils/logger.js';
+
+const app = createApp();
+
+const server = app.listen(env.port, () => {
+  logger.info('[server] backend no ar', {
+    port: env.port,
+    env: env.nodeEnv,
+    sptransBaseUrl: env.sptransBaseUrl,
+  });
+});
+
+/** Encerramento gracioso. */
+for (const signal of ['SIGINT', 'SIGTERM']) {
+  process.on(signal, () => {
+    logger.info(`[server] recebido ${signal}, encerrando`);
+    server.close(() => process.exit(0));
+  });
+}
