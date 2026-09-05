@@ -27,9 +27,21 @@ App em `http://localhost:5173`. Em dev, o Vite faz proxy de `/api` para
 | Script          | Ação                             |
 | --------------- | -------------------------------- |
 | `npm run dev`   | Servidor de desenvolvimento      |
+| `npm run dev:mobile` | Dev em HTTPS na rede local (testar no celular) |
 | `npm run build` | Type-check + build de produção   |
 | `npm run preview` | Serve o build local            |
 | `npm run lint`  | oxlint                           |
+
+## Testar no celular
+
+GPS e câmera só funcionam em `localhost` ou HTTPS. Para testar num aparelho:
+
+1. Celular e PC na **mesma rede Wi-Fi**.
+2. Rode o backend (`cd backend && npm run dev`) e, em outro terminal,
+   `cd frontend && npm run dev:mobile`.
+3. Abra no celular a URL **Network** que o Vite imprime
+   (ex.: `https://192.168.1.11:5173`) e aceite o aviso de certificado
+   (é um certificado local autoassinado).
 
 ## Telas (a partir do Figma)
 
