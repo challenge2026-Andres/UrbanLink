@@ -1,20 +1,51 @@
-import { ChevronRight, DollarSign, Tag, Ticket } from 'lucide-react'
+import { DollarSign, Tag, Ticket } from 'lucide-react'
+import { useState } from 'react'
 import { ScreenHeader } from '../../components/ScreenHeader/ScreenHeader'
-import { rewardOptions, user, walletHistory } from '../../data/mock'
-import type { RewardOption } from '../../types'
+import { StatePanel } from '../../components/StatePanel/StatePanel'
+import { useApi } from '../../hooks/useApi'
+import { ApiError, getCarteira, resgatarEcoa } from '../../lib/api'
+import type { OpcaoResgate } from '../../types'
 import styles from './CreditoEcoa.module.css'
 
-const REWARD_ICON: Record<RewardOption['icon'], typeof Ticket> = {
+const ICONE: Record<OpcaoResgate['icone'], typeof Ticket> = {
   ticket: Ticket,
   cash: DollarSign,
   tag: Tag,
 }
 
-const formatEcoa = (value: number) =>
-  `${value > 0 ? '+' : ''}${value.toLocaleString('pt-BR')} Ecoa`
+const fmtEcoa = (v: number) => `${v > 0 ? '+' : ''}${v.toLocaleString('pt-BR')} Ecoa`
+
+const fmtData = (iso: string) =>
+  new Date(iso).toLocaleString('pt-BR', {
+    day: '2-digit',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
 
 /** Carteira Ecoa: saldo, opções de resgate e histórico de lançamentos. */
 export function CreditoEcoa() {
+  const { data: carteira, loading, error, reload } = useApi(getCarteira)
+  const [selecionada, setSelecionada] = useState<OpcaoResgate | null>(null)
+  const [resgatando, setResgatando] = useState(false)
+  const [aviso, setAviso] = useState<string | null>(null)
+
+  async function confirmarResgate() {
+    if (!selecionada) return
+    setResgatando(true)
+    setAviso(null)
+    try {
+      await resgatarEcoa(selecionada.id)
+      setAviso(`${selecionada.titulo} resgatado!`)
+      setSelecionada(null)
+      reload()
+    } catch (err) {
+      setAviso(err instanceof ApiError ? err.message : 'Não foi possível resgatar.')
+    } finally {
+      setResgatando(false)
+    }
+  }
+
   return (
     <div className={styles.page}>
       <div className={styles.hero}>
@@ -22,7 +53,7 @@ export function CreditoEcoa() {
         <div className={styles.balance}>
           <span className={styles.balanceCaption}>Saldo</span>
           <strong className={styles.balanceValue}>
-            {user.ecoaBalance.toLocaleString('pt-BR')} Ecoa
+            {(carteira?.saldo ?? 0).toLocaleString('pt-BR')} Ecoa
           </strong>
           <span className={styles.balanceCaption}>
             Seus créditos podem ser utilizados nos benefícios SoulUp
@@ -31,51 +62,102 @@ export function CreditoEcoa() {
       </div>
 
       <div className={styles.sheet}>
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Troque seus créditos</h2>
-          <ul className={styles.rewards}>
-            {rewardOptions.map((option) => {
-              const Icon = REWARD_ICON[option.icon]
-              return (
-                <li key={option.id}>
-                  <button type="button" className={styles.reward}>
-                    <span className={styles.rewardIcon}>
-                      <Icon size={18} />
-                    </span>
-                    <span className={styles.rewardText}>
-                      <span className={styles.rewardTitle}>{option.title}</span>
-                      <span className={styles.rewardRequirement}>{option.requirement}</span>
-                    </span>
-                    <ChevronRight size={18} className={styles.rewardChevron} />
-                  </button>
-                </li>
-              )
-            })}
-          </ul>
-        </section>
+        {!carteira ? (
+          <StatePanel loading={loading} error={error} onRetry={reload} />
+        ) : (
+          <>
+            {aviso && <p className={styles.aviso}>{aviso}</p>}
 
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Histórico</h2>
-          <ul className={styles.history}>
-            {walletHistory.map((entry) => (
-              <li key={entry.id} className={styles.entry}>
-                <div>
-                  <p
-                    className={`${styles.entryAmount} ${
-                      entry.amount < 0 ? styles.negative : styles.positive
-                    }`}
-                  >
-                    {formatEcoa(entry.amount)}
-                  </p>
-                  <p className={styles.entryLabel}>{entry.label}</p>
-                  <p className={styles.entryDetail}>{entry.detail}</p>
-                </div>
-                <span className={styles.entryWhen}>{entry.when}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
+            <section className={styles.section}>
+              <h2 className={styles.sectionTitle}>Troque seus créditos</h2>
+              <ul className={styles.rewards}>
+                {carteira.opcoesResgate.map((opcao) => {
+                  const Icon = ICONE[opcao.icone]
+                  const podeResgatar = carteira.saldo >= opcao.custo
+                  return (
+                    <li key={opcao.id}>
+                      <button
+                        type="button"
+                        className={styles.reward}
+                        disabled={!podeResgatar}
+                        onClick={() => setSelecionada(opcao)}
+                      >
+                        <span className={styles.rewardIcon}>
+                          <Icon size={18} />
+                        </span>
+                        <span className={styles.rewardText}>
+                          <span className={styles.rewardTitle}>{opcao.titulo}</span>
+                          <span className={styles.rewardRequirement}>
+                            {podeResgatar
+                              ? `${opcao.custo.toLocaleString('pt-BR')} Ecoa`
+                              : `Faltam ${(opcao.custo - carteira.saldo).toLocaleString('pt-BR')} Ecoa`}
+                          </span>
+                        </span>
+                      </button>
+                    </li>
+                  )
+                })}
+              </ul>
+            </section>
+
+            <section className={styles.section}>
+              <h2 className={styles.sectionTitle}>Histórico</h2>
+              {carteira.historico.length === 0 ? (
+                <p className={styles.vazio}>Nenhum lançamento ainda. Valide um trajeto para ganhar Ecoa.</p>
+              ) : (
+                <ul className={styles.history}>
+                  {carteira.historico.map((entry) => (
+                    <li key={entry.id} className={styles.entry}>
+                      <div>
+                        <p
+                          className={`${styles.entryAmount} ${
+                            entry.valor < 0 ? styles.negative : styles.positive
+                          }`}
+                        >
+                          {fmtEcoa(entry.valor)}
+                        </p>
+                        <p className={styles.entryLabel}>{entry.descricao}</p>
+                        <p className={styles.entryDetail}>{entry.detalhe}</p>
+                      </div>
+                      <span className={styles.entryWhen}>{fmtData(entry.em)}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          </>
+        )}
       </div>
+
+      {selecionada && (
+        <div className={styles.overlay} onClick={() => !resgatando && setSelecionada(null)}>
+          <div className={styles.confirm} onClick={(e) => e.stopPropagation()}>
+            <h3 className={styles.confirmTitle}>Resgatar {selecionada.titulo}?</h3>
+            <p className={styles.confirmText}>
+              {selecionada.descricao} — {selecionada.custo.toLocaleString('pt-BR')} Ecoa serão
+              debitados do seu saldo.
+            </p>
+            <div className={styles.confirmActions}>
+              <button
+                type="button"
+                className={styles.confirmCancel}
+                onClick={() => setSelecionada(null)}
+                disabled={resgatando}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className={styles.confirmOk}
+                onClick={confirmarResgate}
+                disabled={resgatando}
+              >
+                {resgatando ? 'Resgatando...' : 'Confirmar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -3,6 +3,8 @@
  * A URL base vem de `VITE_API_URL` (em dev, o Vite faz proxy de `/api`).
  */
 
+import type { Carteira, Perfil, Recompensa } from '../types'
+
 const BASE_URL = (import.meta.env.VITE_API_URL ?? '/api').replace(/\/$/, '')
 
 /** Linha retornada pela busca da SPTrans (via backend). */
@@ -45,10 +47,15 @@ export interface ResultadoValidacao {
     veiculosNaLinha: number
   }
   foto: { recebida: boolean; bytes: number; sha256: string }
+  /** Recompensa concedida (só quando `valido`). */
+  recompensa: Recompensa | null
+  /** `true` se este trajeto concluiu o desafio semanal. */
+  desafioConcluido: boolean
 }
 
 export interface ValidarTrajetoInput {
   codigoLinha: number
+  linha: { lt: string; sl: 1 | 2; tp: string; ts: string }
   lat: number
   lng: number
   accuracy?: number
@@ -99,6 +106,24 @@ export async function validarTrajeto(input: ValidarTrajetoInput): Promise<Result
   return request<ResultadoValidacao>('/trajetos/validar', {
     method: 'POST',
     body: JSON.stringify(input),
+  })
+}
+
+/** Perfil consolidado do usuário (impacto, nível, desafio, conquistas). */
+export function getPerfil(): Promise<Perfil> {
+  return request<Perfil>('/perfil')
+}
+
+/** Carteira Ecoa (saldo, opções de resgate, histórico). */
+export function getCarteira(): Promise<Carteira> {
+  return request<Carteira>('/carteira')
+}
+
+/** Resgata créditos Ecoa por uma opção do catálogo. */
+export function resgatarEcoa(opcaoId: string): Promise<{ saldo: number }> {
+  return request<{ saldo: number }>('/carteira/resgatar', {
+    method: 'POST',
+    body: JSON.stringify({ opcaoId }),
   })
 }
 

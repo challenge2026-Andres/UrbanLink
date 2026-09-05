@@ -5,8 +5,11 @@ import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 
 import { env } from './config/env.js';
+import { carteiraRouter } from './routes/carteira.js';
+import { devRouter } from './routes/dev.js';
 import { healthRouter } from './routes/health.js';
 import { linhasRouter } from './routes/linhas.js';
+import { perfilRouter } from './routes/perfil.js';
 import { trajetosRouter } from './routes/trajetos.js';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
 
@@ -44,13 +47,22 @@ export function createApp() {
     }),
   );
 
+  const jsonPequeno = express.json({ limit: '10kb' });
+
   app.use('/api/health', healthRouter);
   app.use('/api/linhas', linhasRouter);
+  app.use('/api/perfil', perfilRouter);
+  app.use('/api/carteira', jsonPequeno, carteiraRouter);
 
   // A validação de trajeto recebe uma foto em base64; libera um corpo maior
-  // apenas nesta rota (as demais não recebem corpo).
+  // apenas nesta rota.
   const fotoJsonLimit = Math.ceil((env.maxPhotoBytes * 1.4) / 1024) + 64;
   app.use('/api/trajetos', express.json({ limit: `${fotoJsonLimit}kb` }), trajetosRouter);
+
+  // Utilidades de desenvolvimento (nunca em produção).
+  if (!env.isProduction) {
+    app.use('/api/dev', jsonPequeno, devRouter);
+  }
 
   app.use(notFound);
   app.use(errorHandler);
