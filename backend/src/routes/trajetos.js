@@ -60,8 +60,9 @@ trajetosRouter.post(
       capturadoEm: body.capturadoEm,
     });
 
-    // Análise de conteúdo da foto — só roda se o GPS já passou (economiza CPU)
-    // e nunca no bypass de dev.
+    // Análise de conteúdo da foto — só roda se a presença já foi validada
+    // (economiza CPU em check-in que já falhou). É independente do VALIDATION_BYPASS:
+    // o bypass só afeta a checagem de GPS; a foto continua sendo analisada.
     let analise = null;
     if (resultado.valido) {
       analise = await analisarFotoTransporte(body.foto);

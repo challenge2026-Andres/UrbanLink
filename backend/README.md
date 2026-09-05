@@ -195,7 +195,10 @@ Verifica se a foto do check-in é mesmo o **interior de um transporte público**
   "treinado", só se ajusta `IMAGE_ANALYSIS_MIN_CONFIDENCE` e as listas de rótulos.
   `GET /api/dev/analise-imagem` mostra o resumo para essa calibração.
 - **Fail mode:** se a inferência falhar/estourar timeout, `IMAGE_ANALYSIS_FAIL_MODE`
-  decide (`open` aprova, `closed` rejeita). `VALIDATION_BYPASS=true` pula a análise.
+  decide (`open` aprova, `closed` rejeita).
+- **Independente do `VALIDATION_BYPASS`:** o bypass só desliga a checagem de GPS — a foto
+  continua sendo analisada. Útil para testar a análise sem estar num ônibus:
+  `VALIDATION_BYPASS=true` + `IMAGE_ANALYSIS_ENABLED=true` + `IMAGE_ANALYSIS_MODE=blocking`.
 - **Trocar de provedor** (Claude Haiku, Gemini) é só configuração — `provider` no
   `services/analiseImagem.js` já tem o `switch`.
 
