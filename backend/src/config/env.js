@@ -12,7 +12,10 @@ import 'dotenv/config';
  *   isProduction: boolean,
  *   sptransApiKey: string,
  *   sptransBaseUrl: string,
- *   corsOrigin: string
+ *   corsOrigin: string,
+ *   validationRadiusM: number,
+ *   sptransPositionMaxAgeS: number,
+ *   maxPhotoBytes: number
  * }}
  */
 function loadEnv() {
@@ -22,6 +25,9 @@ function loadEnv() {
     SPTRANS_API_KEY,
     SPTRANS_BASE_URL = 'https://api.olhovivo.sptrans.com.br/v2.1',
     CORS_ORIGIN = 'http://localhost:5173',
+    VALIDATION_RADIUS_M = '150',
+    SPTRANS_POSITION_MAX_AGE_S = '90',
+    MAX_PHOTO_BYTES = '2097152',
   } = process.env;
 
   const missing = [];
@@ -35,19 +41,30 @@ function loadEnv() {
     process.exit(1);
   }
 
-  const port = Number.parseInt(PORT, 10);
-  if (Number.isNaN(port)) {
-    console.error(`[config] PORT inválida: "${PORT}"`);
-    process.exit(1);
-  }
+  /**
+   * @param {string} value
+   * @param {string} name
+   * @returns {number}
+   */
+  const toPositiveInt = (value, name) => {
+    const parsed = Number.parseInt(value, 10);
+    if (Number.isNaN(parsed) || parsed <= 0) {
+      console.error(`[config] ${name} inválida: "${value}" (esperado inteiro positivo).`);
+      process.exit(1);
+    }
+    return parsed;
+  };
 
   return {
-    port,
+    port: toPositiveInt(PORT, 'PORT'),
     nodeEnv: NODE_ENV,
     isProduction: NODE_ENV === 'production',
     sptransApiKey: SPTRANS_API_KEY,
     sptransBaseUrl: SPTRANS_BASE_URL.replace(/\/$/, ''),
     corsOrigin: CORS_ORIGIN,
+    validationRadiusM: toPositiveInt(VALIDATION_RADIUS_M, 'VALIDATION_RADIUS_M'),
+    sptransPositionMaxAgeS: toPositiveInt(SPTRANS_POSITION_MAX_AGE_S, 'SPTRANS_POSITION_MAX_AGE_S'),
+    maxPhotoBytes: toPositiveInt(MAX_PHOTO_BYTES, 'MAX_PHOTO_BYTES'),
   };
 }
 
