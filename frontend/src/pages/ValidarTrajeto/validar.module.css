@@ -27,18 +27,31 @@
   margin-top: var(--space-1);
 }
 
-/* Área de câmera (placeholder da Fase 2) */
+/* Botão que abre a câmera do dispositivo. */
 .camera {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
+  width: 100%;
   aspect-ratio: 4 / 3;
   border-radius: var(--radius-md);
   background: var(--color-surface-muted);
   color: var(--color-text-secondary);
   border: 1.5px dashed var(--color-border);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.camera:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.camera:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
 .privacy {
@@ -49,16 +62,19 @@
   color: var(--color-text-secondary);
 }
 
-/* Pré-visualização da foto */
+.erro {
+  font-size: var(--text-sm);
+  color: var(--color-danger);
+}
+
+/* Pré-visualização da foto capturada. */
 .preview {
+  display: block;
+  width: 100%;
   aspect-ratio: 4 / 3;
+  object-fit: cover;
   border-radius: var(--radius-md);
-  background: repeating-linear-gradient(
-      90deg,
-      #d7d9e0 0 14px,
-      #c9ccd6 14px 16px
-    ),
-    var(--color-surface-muted);
+  background: var(--color-surface-muted);
 }
 
 /* Card de detalhes do trajeto */
@@ -149,6 +165,17 @@
   }
 }
 
+.alertMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-danger) 12%, transparent);
+  color: var(--color-danger);
+}
+
 .footer {
   position: sticky;
   bottom: var(--bottom-nav-height);
@@ -172,6 +199,10 @@
   text-align: center;
 }
 
+.successFail {
+  background: #3a3550;
+}
+
 .successMark {
   display: inline-flex;
   align-items: center;
@@ -182,6 +213,10 @@
   background: var(--color-surface);
   color: var(--color-primary);
   margin-bottom: var(--space-5);
+}
+
+.successMarkFail {
+  color: var(--color-danger);
 }
 
 .successTitle {
@@ -227,18 +262,22 @@
 
 .receiptRow {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-2);
   font-size: var(--text-sm);
+  text-align: left;
 }
 
 .receiptRow svg {
   color: var(--color-success);
   flex-shrink: 0;
+  margin-top: 3px;
 }
 
 .receiptRow span + span {
   margin-left: auto;
+  padding-left: var(--space-3);
+  white-space: nowrap;
   color: var(--color-text-secondary);
 }
 
