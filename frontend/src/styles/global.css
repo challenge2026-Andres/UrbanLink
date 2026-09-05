@@ -48,13 +48,13 @@ ol {
   list-style: none;
 }
 
-/* Coluna central estilo app mobile, mesmo em telas grandes. */
+/* No celular ocupa a tela inteira; em telas grandes vira uma coluna central. */
 .app-shell {
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: var(--app-max-width);
   min-height: 100vh;
+  min-height: 100dvh;
   margin: 0 auto;
   background: var(--color-surface);
 }
@@ -65,6 +65,7 @@ ol {
   }
 
   .app-shell {
+    max-width: var(--app-max-width);
     min-height: calc(100vh - var(--space-6) * 2);
     border-radius: var(--radius-lg);
     overflow: hidden;
