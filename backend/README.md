@@ -108,12 +108,15 @@ A foto é inspecionada e registrada em log (mime, bytes, hash) — **não é arm
 // resposta (quando válido, registra o trajeto e credita pontos + Ecoa)
 {
   "valido": true,
-  "motivo": null,                     // ou "fora_do_raio" | "sem_veiculos" | "posicao_desatualizada" | "timestamp_invalido"
+  "motivo": null,                     // ou "fora_do_raio" | "sem_veiculos" | "posicao_desatualizada" | "timestamp_invalido" | "foto_rejeitada"
   "validadoEm": "2026-09-05T20:45:03.915Z",
   "detalhes": { "raioToleranciaM": 150, "distanciaMetros": 42, "veiculoMaisProximo": {…}, "horaConsultaSptrans": "17:46", "veiculosNaLinha": 5 },
   "recompensa": { "distanciaKm": 7, "co2EvitadoKg": 0.57, "pontos": 52, "ecoa": 52 },
   "desafioConcluido": false,
-  "foto": { "recebida": true, "bytes": 84213, "sha256": "..." }
+  "foto": {
+    "recebida": true, "bytes": 84213, "sha256": "...",
+    "analise": { "executada": true, "aprovada": true, "confianca": 0.998, "rotulo": "interior de ônibus", "modo": "advisory", "status": "ok" }
+  }
 }
 ```
 
@@ -147,6 +150,7 @@ backend/
    ├─ services/
    │  ├─ sptransClient.js    # auth + cookie de sessão + reauth + wrappers
    │  ├─ validacaoTrajeto.js # compara GPS do celular x posição real dos ônibus
+   │  ├─ analiseImagem.js    # CLIP zero-shot: a foto é interior de transporte?
    │  ├─ gamificacao.js      # fórmulas de CO₂, pontos, nível, desafio
    │  ├─ perfil.js           # monta perfil e carteira (views)
    │  └─ recompensas.js      # credita trajeto, resgata Ecoa (mutações)
@@ -164,6 +168,40 @@ backend/
 - **Pontos** = `PONTOS_BASE + round(distância × PONTOS_POR_KM)`; `Ecoa = pontos`.
 - **Nível** por total de trajetos (`TRAJETOS_POR_NIVEL`, padrão 3).
 - **Desafio semanal**: N trajetos numa semana ISO → bônus em Ecoa, creditado uma vez.
+
+## Análise de conteúdo da foto
+
+Verifica se a foto do check-in é mesmo o **interior de um transporte público**
+(anti-fraude, além do GPS). Opt-in via `IMAGE_ANALYSIS_ENABLED=true`.
+
+- **Ferramenta:** modelo **CLIP** (`Xenova/clip-vit-base-patch32`) rodando localmente
+  via `@huggingface/transformers` — **classificação zero-shot de imagem**. A foto (que
+  costuma ter rostos de outros passageiros) **nunca sai do servidor**. Custo zero por
+  chamada; ~1 s no boot para carregar o modelo, ~100 ms por inferência depois.
+- **Método:** o CLIP compara a imagem com um conjunto de descrições candidatas —
+  "positivas" (interior de ônibus/trem/metrô) e "negativas" (janela de casa, rua, selfie,
+  tela, interior de carro, etc.). Os scores somam 1; somamos os das positivas e comparamos
+  com `IMAGE_ANALYSIS_MIN_CONFIDENCE`. As descrições estão em `services/analiseImagem.js`.
+- **Modos:** `advisory` (padrão — roda, registra e mostra o resultado, mas não recusa o
+  check-in) e `blocking` (foto reprovada → `valido: false`, `motivo: 'foto_rejeitada'`).
+  Começar em advisório permite calibrar o limiar pelos logs antes de barrar usuário real.
+- **Fail mode:** se a inferência falhar/estourar timeout, `IMAGE_ANALYSIS_FAIL_MODE`
+  decide (`open` aprova, `closed` rejeita). `VALIDATION_BYPASS=true` pula a análise.
+- **Trocar de provedor** (Claude Haiku, Gemini) é só configuração — `provider` no
+  `services/analiseImagem.js` já tem o `switch`.
+
+**Limitações:** foto de uma tela mostrando um ônibus provavelmente passa (não há detecção
+de _liveness_); o GPS + proximidade a um ônibus real segue sendo a defesa principal. CLIP
+base erra em fotos escuras/borradas — daí o modo advisório primeiro.
+
+> **Uso de IA (entregável do challenge):** ferramenta = `clip-vit-base-patch32`;
+> etapa = validação de trajeto; "prompt" = as listas de rótulos positivos/negativos;
+> uso da resposta = soma dos scores positivos vs. limiar de confiança.
+
+> **npm audit:** `@huggingface/transformers` traz `sharp` e `adm-zip` (transitivos do
+> `onnxruntime-node`) com advisories high sem fix upstream. Mitigado por: limite de 2 MiB
+> na foto, allowlist de formato, e a análise só roda após o GPS passar. Monitorar
+> `npm audit` para o fix.
 
 ## Segurança aplicada
 

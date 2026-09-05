@@ -5,7 +5,8 @@ import { posicaoPorLinha } from './sptransClient.js';
 
 /**
  * Motivos possíveis para um trajeto NÃO ser validado.
- * @typedef {'sem_veiculos' | 'fora_do_raio' | 'posicao_desatualizada' | 'timestamp_invalido'} MotivoInvalido
+ * `foto_rejeitada` é aplicado fora deste serviço (rota), pela análise de imagem.
+ * @typedef {'sem_veiculos' | 'fora_do_raio' | 'posicao_desatualizada' | 'timestamp_invalido' | 'foto_rejeitada'} MotivoInvalido
  */
 
 /** Tolerância máxima entre o horário informado pelo cliente e o do servidor. */

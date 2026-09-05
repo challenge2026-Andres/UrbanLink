@@ -4,6 +4,7 @@ import { env } from '../config/env.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { inspecionarFoto } from '../utils/foto.js';
 import { logger } from '../utils/logger.js';
+import { analisarFotoTransporte } from '../services/analiseImagem.js';
 import { validarPresencaTrajeto } from '../services/validacaoTrajeto.js';
 import { registrarTrajetoValidado } from '../services/recompensas.js';
 
@@ -59,6 +60,26 @@ trajetosRouter.post(
       capturadoEm: body.capturadoEm,
     });
 
+    // Análise de conteúdo da foto — só roda se o GPS já passou (economiza CPU)
+    // e nunca no bypass de dev.
+    let analise = null;
+    if (resultado.valido) {
+      analise = await analisarFotoTransporte(body.foto);
+      if (analise.executada) {
+        logger.info('[trajeto] analise de foto', {
+          aprovada: analise.aprovada,
+          confianca: analise.confianca,
+          rotulo: analise.rotulo,
+          modo: env.imageAnalysis.mode,
+        });
+      }
+      // Em modo "blocking", foto reprovada invalida o check-in.
+      if (env.imageAnalysis.mode === 'blocking' && analise.executada && !analise.aprovada) {
+        resultado.valido = false;
+        resultado.motivo = 'foto_rejeitada';
+      }
+    }
+
     let recompensa = null;
     let desafioConcluido = false;
     if (resultado.valido) {
@@ -68,6 +89,9 @@ trajetosRouter.post(
         embarque: { lat: body.lat, lng: body.lng, em: body.capturadoEm },
         detalhes: resultado.detalhes,
         fotoSha256: foto.sha256,
+        analiseFoto: analise?.executada
+          ? { aprovada: analise.aprovada, confianca: analise.confianca, rotulo: analise.rotulo }
+          : null,
         validadoEm: resultado.validadoEm,
       });
       recompensa = registro.recompensa;
@@ -78,7 +102,21 @@ trajetosRouter.post(
       ...resultado,
       recompensa,
       desafioConcluido,
-      foto: { recebida: true, bytes: foto.bytes, sha256: foto.sha256 },
+      foto: {
+        recebida: true,
+        bytes: foto.bytes,
+        sha256: foto.sha256,
+        analise: analise
+          ? {
+              executada: analise.executada,
+              aprovada: analise.aprovada,
+              confianca: analise.confianca,
+              rotulo: analise.rotulo,
+              modo: env.imageAnalysis.mode,
+              status: analise.status,
+            }
+          : null,
+      },
     });
   }),
 );
