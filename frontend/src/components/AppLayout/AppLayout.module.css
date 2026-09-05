@@ -1,0 +1,17 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* Cada página ocupa a altura disponível (fundos coloridos preenchem a tela). */
+.content > * {
+  flex: 1;
+}

@@ -38,3 +38,15 @@ npm run dev
 Backend em `http://localhost:3333`. Detalhes e endpoints em
 [backend/README.md](backend/README.md).
 
+### Frontend
+
+```bash
+cd frontend
+npm install
+cp .env.example .env
+npm run dev
+```
+
+App em `http://localhost:5173`. O Vite faz proxy de `/api` para o backend em dev.
+Detalhes em [frontend/README.md](frontend/README.md).
+

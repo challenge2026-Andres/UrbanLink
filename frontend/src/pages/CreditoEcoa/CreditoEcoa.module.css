@@ -1,0 +1,151 @@
+.page {
+  background: var(--color-primary);
+  min-height: 100%;
+}
+
+.hero {
+  color: var(--color-text-on-primary);
+  padding-bottom: var(--space-8);
+}
+
+.balance {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-5) 0;
+}
+
+.balanceCaption {
+  font-size: var(--text-xs);
+  color: var(--color-text-on-primary-dim);
+}
+
+.balanceValue {
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.sheet {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  margin-top: calc(var(--space-6) * -1);
+  padding: var(--space-6) var(--space-4)
+    calc(var(--bottom-nav-height) + var(--space-6));
+}
+
+.section {
+  margin-bottom: var(--space-6);
+}
+
+.sectionTitle {
+  font-size: var(--text-base);
+  font-weight: 600;
+  margin-bottom: var(--space-3);
+}
+
+/* Resgates */
+.rewards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.reward {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  text-align: left;
+}
+
+.reward:hover {
+  background: var(--color-surface-muted);
+}
+
+.rewardIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.rewardText {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.rewardTitle {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.rewardRequirement {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+}
+
+.rewardChevron {
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+/* Histórico */
+.history {
+  display: flex;
+  flex-direction: column;
+}
+
+.entry {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.entry:last-child {
+  border-bottom: none;
+}
+
+.entryAmount {
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.positive {
+  color: var(--color-success);
+}
+
+.negative {
+  color: var(--color-danger);
+}
+
+.entryLabel {
+  font-size: var(--text-sm);
+  margin-top: 2px;
+}
+
+.entryDetail {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+}
+
+.entryWhen {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  padding-top: 2px;
+}

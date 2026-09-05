@@ -1,0 +1,180 @@
+.page {
+  padding: var(--space-4) var(--space-4) 0;
+}
+
+/* Top bar */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-5);
+}
+
+.points {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.topbarActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-pill);
+  color: var(--color-text-secondary);
+}
+
+.iconButton:hover {
+  background: var(--color-surface-muted);
+  color: var(--color-text);
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-muted);
+  color: var(--color-text-secondary);
+}
+
+/* Hero */
+.hero {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--color-primary-gradient);
+  color: var(--color-text-on-primary);
+  margin-bottom: var(--space-6);
+}
+
+.heroText {
+  flex: 1;
+  min-width: 0;
+}
+
+.heroBrand {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+.heroTitle {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  margin: var(--space-1) 0 var(--space-2);
+}
+
+.heroSubtitle {
+  font-size: var(--text-sm);
+  color: var(--color-text-on-primary-dim);
+  margin-bottom: var(--space-4);
+}
+
+.heroButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 9px 16px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.16);
+  color: var(--color-text-on-primary);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  backdrop-filter: blur(2px);
+}
+
+.heroButton:hover {
+  background: rgba(255, 255, 255, 0.26);
+}
+
+.heroIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: var(--color-text-on-primary);
+}
+
+/* Sections */
+.section {
+  margin-bottom: var(--space-6);
+}
+
+.sectionHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.sectionTitle {
+  font-size: var(--text-base);
+  font-weight: 600;
+  margin-bottom: var(--space-3);
+}
+
+.link {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.stats {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* Challenge card */
+.challenge {
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.challengeHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.challengeTitle {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.challengeDesc {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+}
+
+.challengeCount {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--color-primary);
+  white-space: nowrap;
+}

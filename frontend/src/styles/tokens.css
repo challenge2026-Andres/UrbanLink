@@ -1,0 +1,63 @@
+/**
+ * Design tokens do UrbanLink — derivados do Figma.
+ * Fonte: https://www.figma.com/design/EOycJtgdHEyUoEpqisXzBD/UrbanLink
+ */
+:root {
+  /* Cores de marca */
+  --color-primary: #4b50e6;
+  --color-primary-strong: #383de0;
+  --color-primary-soft: #ececfd;
+  --color-primary-gradient: linear-gradient(135deg, #5b60f0 0%, #7b6ff5 100%);
+
+  /* Superfícies */
+  --color-bg: #f6f7f9;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f2f3f7;
+  --color-border: #e8e8ef;
+
+  /* Texto */
+  --color-text: #16161d;
+  --color-text-secondary: #6b6b7b;
+  --color-text-on-primary: #ffffff;
+  --color-text-on-primary-dim: rgba(255, 255, 255, 0.82);
+
+  /* Semânticas */
+  --color-success: #1fbf75;
+  --color-danger: #e5484d;
+  --color-track: #e4e4ec;
+
+  /* Tipografia */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.25rem;
+
+  /* Espaçamento */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  /* Raios */
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  /* Sombras */
+  --shadow-sm: 0 1px 3px rgba(20, 20, 45, 0.06);
+  --shadow-card: 0 4px 16px rgba(20, 20, 45, 0.06);
+  --shadow-nav: 0 -2px 16px rgba(20, 20, 45, 0.06);
+
+  /* Layout */
+  --app-max-width: 480px;
+  --bottom-nav-height: 72px;
+}
