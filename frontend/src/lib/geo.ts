@@ -42,7 +42,9 @@ export function obterPosicaoAtual(): Promise<Posicao> {
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
           accuracy: pos.coords.accuracy,
-          capturadoEm: new Date(pos.timestamp).toISOString(),
+          // Usa o relógio de parede em vez de `pos.timestamp`: alguns navegadores
+          // retornam esse campo relativo ao carregamento da página, não ao epoch.
+          capturadoEm: new Date().toISOString(),
         }),
       (err) => {
         const tipo: ErroGeoloc =
