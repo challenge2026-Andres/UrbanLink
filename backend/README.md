@@ -202,9 +202,12 @@ Verifica se a foto do check-in é mesmo o **interior de um transporte público**
 - **Trocar de provedor** (Claude Haiku, Gemini) é só configuração — `provider` no
   `services/analiseImagem.js` já tem o `switch`.
 
-**Limitações:** foto de uma tela mostrando um ônibus provavelmente passa (não há detecção
-de _liveness_); o GPS + proximidade a um ônibus real segue sendo a defesa principal. CLIP
-base erra em fotos escuras/borradas — daí o modo advisório primeiro.
+**Limitações:** o CLIP não distingue "foto real de ônibus" de "foto de uma imagem em tela
+cheia" — ambas dão ~0,99 (só pega foto de tela quando dá pra ver a moldura/reflexo). O
+frontend mitiga isso capturando a foto **ao vivo pela câmera** (`getUserMedia`, sem upload
+da galeria), o que barra "baixei uma foto do Google". Contra apontar a câmera pra um
+monitor não há defesa perfeita — o GPS + proximidade a um ônibus real segue sendo a defesa
+principal. CLIP base também erra em fotos escuras/borradas: daí o modo advisório primeiro.
 
 > **Uso de IA (entregável do challenge):** ferramenta = `clip-vit-base-patch32`;
 > etapa = validação de trajeto; "prompt" = as listas de rótulos positivos/negativos;

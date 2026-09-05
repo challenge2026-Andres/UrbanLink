@@ -53,7 +53,7 @@ produção). Com ele, qualquer validação é aceita.
 | ----------------------- | ----------------------------------------------- |
 | `/`                     | Home — destaque para iniciar trajeto + impacto  |
 | `/novo-trajeto`         | Transporte + busca de linha (SPTrans) + GPS      |
-| `/validar/foto`         | Captura da foto pela câmera do dispositivo       |
+| `/validar/foto`         | Câmera ao vivo (`getUserMedia`), sem upload da galeria |
 | `/validar/revisao`      | Revisão da foto e dos dados capturados           |
 | `/validar/processando`  | Envia GPS + foto + horário ao backend            |
 | `/validar/resultado`    | Resultado da validação (sucesso ou falha)        |
@@ -77,6 +77,6 @@ frontend/src/
 ├─ lib/                     # api.ts (backend), geo.ts (GPS), imagem.ts (foto)
 ├─ hooks/useApi.ts          # busca de dados com loading/erro/reload
 ├─ flows/trajeto/           # contexto do fluxo de validação
-├─ components/              # AppLayout, BottomNav, Button, StatCard, StatePanel, ...
+├─ components/              # AppLayout, BottomNav, CameraCapture, StatCard, StatePanel, ...
 └─ pages/                   # uma pasta por tela (.tsx + .module.css)
 ```

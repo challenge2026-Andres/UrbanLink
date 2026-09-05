@@ -3,29 +3,32 @@ const MAX_DIMENSAO = 1280
 /** Alvo de tamanho da foto comprimida (bytes). O backend aceita até 2 MiB. */
 const ALVO_BYTES = 1_400_000
 
-/**
- * Lê um arquivo de imagem (vindo da câmera) e devolve um data URL JPEG
- * redimensionado e comprimido, pronto para enviar ao backend.
- *
- * @throws {Error} Se o arquivo não for uma imagem válida.
- */
-export async function prepararFoto(file: File): Promise<string> {
-  if (!file.type.startsWith('image/')) {
-    throw new Error('O arquivo selecionado não é uma imagem.')
-  }
+type FonteImagem = ImageBitmap | HTMLImageElement | HTMLVideoElement
 
-  const bitmap = await carregarBitmap(file)
-  const escala = Math.min(1, MAX_DIMENSAO / Math.max(bitmap.width, bitmap.height))
-  const largura = Math.round(bitmap.width * escala)
-  const altura = Math.round(bitmap.height * escala)
+function dimensoes(fonte: FonteImagem): { largura: number; altura: number } {
+  const w = fonte instanceof HTMLVideoElement ? fonte.videoWidth : fonte.width
+  const h = fonte instanceof HTMLVideoElement ? fonte.videoHeight : fonte.height
+  return { largura: w, altura: h }
+}
+
+/**
+ * Redimensiona e comprime uma fonte de imagem (arquivo já decodificado ou frame
+ * de vídeo) para um data URL JPEG pronto para enviar ao backend.
+ */
+function comprimir(fonte: FonteImagem): string {
+  const { largura: w0, altura: h0 } = dimensoes(fonte)
+  if (!w0 || !h0) throw new Error('Não foi possível ler a imagem.')
+
+  const escala = Math.min(1, MAX_DIMENSAO / Math.max(w0, h0))
+  const largura = Math.round(w0 * escala)
+  const altura = Math.round(h0 * escala)
 
   const canvas = document.createElement('canvas')
   canvas.width = largura
   canvas.height = altura
   const ctx = canvas.getContext('2d')
   if (!ctx) throw new Error('Não foi possível processar a imagem.')
-  ctx.drawImage(bitmap, 0, 0, largura, altura)
-  if ('close' in bitmap) bitmap.close()
+  ctx.drawImage(fonte, 0, 0, largura, altura)
 
   // Reduz a qualidade progressivamente até caber no alvo de tamanho.
   let qualidade = 0.82
@@ -35,6 +38,28 @@ export async function prepararFoto(file: File): Promise<string> {
     dataUrl = canvas.toDataURL('image/jpeg', qualidade)
   }
   return dataUrl
+}
+
+/**
+ * Lê um arquivo de imagem (fallback quando a câmera ao vivo não está disponível)
+ * e devolve um data URL JPEG redimensionado e comprimido.
+ * @throws {Error} Se o arquivo não for uma imagem válida.
+ */
+export async function prepararFoto(file: File): Promise<string> {
+  if (!file.type.startsWith('image/')) {
+    throw new Error('O arquivo selecionado não é uma imagem.')
+  }
+  const bitmap = await carregarBitmap(file)
+  try {
+    return comprimir(bitmap)
+  } finally {
+    if ('close' in bitmap) bitmap.close()
+  }
+}
+
+/** Captura o frame atual de um `<video>` (câmera ao vivo) como data URL JPEG. */
+export function prepararFotoDeVideo(video: HTMLVideoElement): string {
+  return comprimir(video)
 }
 
 async function carregarBitmap(file: File): Promise<ImageBitmap | HTMLImageElement> {
