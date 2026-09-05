@@ -15,8 +15,8 @@ Monorepo simples, duas aplicações independentes:
 ```
 UrbanLink/
 ├─ backend/     # Node.js + Express — proxy seguro da API da SPTrans
-├─ frontend/    # React + Vite (mobile-first) — a partir da Fase 2
-├─ CHALLENGE.md # arquitetura, regras de operação e fases
+├─ frontend/    # React + Vite (mobile-first)
+├─ CHALLENGE.md # arquitetura e regras de operação
 └─ README.md
 ```
 
@@ -37,8 +37,4 @@ npm run dev
 
 Backend em `http://localhost:3333`. Detalhes e endpoints em
 [backend/README.md](backend/README.md).
-
-
-
-
 
