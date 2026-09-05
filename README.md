@@ -38,22 +38,7 @@ npm run dev
 Backend em `http://localhost:3333`. Detalhes e endpoints em
 [backend/README.md](backend/README.md).
 
-### Frontend
 
-Ainda não iniciado (Fase 2).
 
-## Fases de desenvolvimento
 
-| Fase | Escopo                                                              | Status        |
-| ---- | ------------------------------------------------------------------ | ------------- |
-| 1    | Backend & proxy SPTrans (setup Node, rotas seguras)               | em andamento  |
-| 2    | Frontend base (Vite + React), telas responsivas a partir do Figma | pendente      |
-| 3    | Lógica de validação — GPS + câmera integrados ao backend          | pendente      |
-| 4    | Gamificação — pontos, CO₂ evitado, recompensas/ranking            | pendente      |
 
-## Versionamento
-
-- Nunca commitar direto na `main`; uma branch semântica por funcionalidade
-  (`feature/...`, `fix/...`).
-- [Conventional Commits](https://www.conventionalcommits.org/); commits pequenos e lógicos.
-- Merge das branches em `main` via Pull Request.
