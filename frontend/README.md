@@ -1,7 +1,8 @@
 # UrbanLink — Frontend
 
-App mobile-first em **React + Vite + TypeScript**. Fase 2: telas principais
-navegáveis com dados mockados. A integração real (GPS, câmera, backend) entra na Fase 3.
+App mobile-first em **React + Vite + TypeScript**. O fluxo "Novo trajeto → Validar
+trajeto" usa GPS (HTML5 Geolocation), câmera e o backend de verdade; as telas de
+impacto e carteira ainda usam dados mockados (viram reais na Fase 4).
 
 ## Stack
 
@@ -35,13 +36,16 @@ App em `http://localhost:5173`. Em dev, o Vite faz proxy de `/api` para
 | Rota                    | Tela                                            |
 | ----------------------- | ----------------------------------------------- |
 | `/`                     | Home — destaque para iniciar trajeto + impacto  |
-| `/novo-trajeto`         | Escolha de transporte e linha                   |
-| `/validar/foto`         | Captura da foto (passo 2)                       |
-| `/validar/revisao`      | Revisão da foto e dos dados                     |
-| `/validar/processando`  | Validação em andamento                          |
-| `/validar/sucesso`      | Trajeto validado + crédito Ecoa                 |
+| `/novo-trajeto`         | Transporte + busca de linha (SPTrans) + GPS      |
+| `/validar/foto`         | Captura da foto pela câmera do dispositivo       |
+| `/validar/revisao`      | Revisão da foto e dos dados capturados           |
+| `/validar/processando`  | Envia GPS + foto + horário ao backend            |
+| `/validar/resultado`    | Resultado da validação (sucesso ou falha)        |
 | `/impacto`              | Meu Impacto — CO₂, jornada, nível, conquistas   |
 | `/credito`              | Carteira Ecoa — saldo, resgates, histórico      |
+
+O estado do fluxo (linha, posição, foto, resultado) vive num contexto
+(`src/flows/trajeto/`) compartilhado entre as telas.
 
 Design de referência:
 [Figma UrbanLink](https://www.figma.com/design/EOycJtgdHEyUoEpqisXzBD/UrbanLink).
@@ -51,10 +55,12 @@ Design de referência:
 ```
 frontend/src/
 ├─ main.tsx                 # bootstrap + BrowserRouter
-├─ App.tsx                  # rotas
+├─ App.tsx                  # rotas + <TrajetoProvider>
 ├─ styles/                  # tokens.css + global.css
 ├─ types/                   # tipos de domínio
-├─ data/mock.ts             # dados mockados da Fase 2
-├─ components/               # AppLayout, BottomNav, Button, StatCard, Stepper, ...
+├─ data/mock.ts             # dados mockados (telas de impacto/carteira)
+├─ lib/                     # api.ts (backend), geo.ts (GPS), imagem.ts (foto)
+├─ flows/trajeto/           # contexto do fluxo de validação
+├─ components/              # AppLayout, BottomNav, Button, StatCard, Stepper, ...
 └─ pages/                   # uma pasta por tela (.tsx + .module.css)
 ```
