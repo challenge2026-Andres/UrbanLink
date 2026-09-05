@@ -13,6 +13,8 @@ export default defineConfig(({ mode }) => {
       // Escuta em toda a rede local para acesso pelo celular.
       host: true,
       port: 5173,
+      // Libera acesso via túnel (cloudflared / ngrok) para testes com outras pessoas.
+      allowedHosts: ['.trycloudflare.com', '.ngrok-free.app', '.ngrok.io', '.loca.lt'],
       // Encaminha /api para o backend, evitando CORS e mixed content.
       proxy: {
         '/api': {
