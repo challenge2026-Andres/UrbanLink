@@ -1,0 +1,266 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-2) var(--space-4) var(--space-10);
+  flex: 1;
+}
+
+.stepper {
+  padding: var(--space-2) var(--space-2) var(--space-4);
+}
+
+.title {
+  font-size: var(--text-xl);
+  font-weight: 700;
+}
+
+.subtitle {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin-top: var(--space-1);
+}
+
+/* Área de câmera (placeholder da Fase 2) */
+.camera {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+  color: var(--color-text-secondary);
+  border: 1.5px dashed var(--color-border);
+}
+
+.privacy {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+}
+
+/* Pré-visualização da foto */
+.preview {
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-md);
+  background: repeating-linear-gradient(
+      90deg,
+      #d7d9e0 0 14px,
+      #c9ccd6 14px 16px
+    ),
+    var(--color-surface-muted);
+}
+
+/* Card de detalhes do trajeto */
+.details {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.detailRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.detailRow:last-child {
+  border-bottom: none;
+}
+
+.detailIcon {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.detailLabel {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  flex: 1;
+}
+
+.detailValue {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+/* Checklist da validação */
+.checklist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.checkItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.checkDone {
+  color: var(--color-success);
+}
+
+.checkPending {
+  color: var(--color-text-secondary);
+}
+
+.hint {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+}
+
+/* Spinner circular */
+.spinnerWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-6) 0;
+}
+
+.spinner {
+  width: 96px;
+  height: 96px;
+  border-radius: var(--radius-pill);
+  border: 8px solid var(--color-track);
+  border-top-color: var(--color-primary);
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.footer {
+  position: sticky;
+  bottom: var(--bottom-nav-height);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: linear-gradient(to top, var(--color-surface) 72%, rgba(255, 255, 255, 0));
+}
+
+/* --- Tela de sucesso (fundo azul, sem nav) --- */
+.success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  padding: var(--space-10) var(--space-5) var(--space-6);
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+  text-align: center;
+}
+
+.successMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 88px;
+  height: 88px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-primary);
+  margin-bottom: var(--space-5);
+}
+
+.successTitle {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+}
+
+.successText {
+  font-size: var(--text-sm);
+  color: var(--color-text-on-primary-dim);
+  margin-top: var(--space-2);
+  max-width: 22rem;
+}
+
+.receipt {
+  width: 100%;
+  margin: var(--space-8) 0 auto;
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.receiptReward {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.receiptCaption {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-4);
+}
+
+.receiptList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.receiptRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+.receiptRow svg {
+  color: var(--color-success);
+  flex-shrink: 0;
+}
+
+.receiptRow span + span {
+  margin-left: auto;
+  color: var(--color-text-secondary);
+}
+
+.successActions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.successPrimary {
+  width: 100%;
+  padding: 15px var(--space-5);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.successGhost {
+  color: var(--color-text-on-primary-dim);
+  font-weight: 600;
+  padding: var(--space-2);
+}
