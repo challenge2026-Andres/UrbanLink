@@ -8,15 +8,20 @@ recompensas — incluindo crédito de transporte público.
 
 Challenge FIAP + SoulUp — 2026, 1º semestre.
 
+📄 **Documentação completa:** [DOCUMENTACAO.md](DOCUMENTACAO.md) — arquitetura,
+endpoints, metodologia (CO₂, pontos, análise de imagem), como testar com outras
+pessoas, deploy e limitações.
+
 ## Arquitetura
 
 Monorepo simples, duas aplicações independentes:
 
 ```
 UrbanLink/
-├─ backend/     # Node.js + Express — proxy seguro da API da SPTrans
-├─ frontend/    # React + Vite (mobile-first)
-├─ CHALLENGE.md # arquitetura e regras de operação
+├─ backend/         # Node.js + Express — proxy seguro da API da SPTrans
+├─ frontend/        # React + Vite (mobile-first)
+├─ CHALLENGE.md     # spec original (arquitetura e regras de operação)
+├─ DOCUMENTACAO.md  # documentação completa do projeto
 └─ README.md
 ```
 
